@@ -67,9 +67,7 @@ def main():
         file_path = tool_argument["file_path"]
 
         if tool_function_name == "Read":
-            content = read(file_path)
-
-        print(content)
+            chat.choices[0].message.content = read(file_path)
 
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!", file=sys.stderr)
