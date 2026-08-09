@@ -12,7 +12,7 @@ API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
 
-def read(file_path):
+def Read(file_path):
     with open(file_path) as f:
         content = f.read()
 
@@ -58,13 +58,14 @@ def main():
 
     tool_to_be_called = chat.choices[0].message.tool_calls[0]
 
-    tool_function_name = tool_to_be_called.function.name
+    tool_function = tool_to_be_called.function
 
-    tool_argument = json.loads(tool_function_name.arguments)
+    tool_function_name = tool_function.name
+    tool_argument = json.loads(tool_function.arguments)
 
     file_path = tool_argument["file_path"]
 
-    content = read(file_path)
+    content = tool_function_name(file_path)
 
     print(content)
 
