@@ -56,7 +56,7 @@ def main():
     if not chat.choices or len(chat.choices) == 0:
         raise RuntimeError("no choices in response")
 
-    tool_to_be_called = chat.choices[0].tool_calls[0]
+    tool_to_be_called = chat.choices[0].message.tool_calls[0]
 
     tool_function_name = tool_to_be_called.function.name
 
