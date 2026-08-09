@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys
 
@@ -9,6 +10,13 @@ load_dotenv()
 
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
+
+
+def read(file_path):
+    with open(file_path) as f:
+        content = f.read()
+
+    return content
 
 
 def main():
@@ -31,22 +39,34 @@ def main():
                     "name": "Read",
                     "description": "Read and return the contents of a file",
                     "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "file_path": {
-                        "type": "string",
-                        "description": "The path to the file to read"
-                        }
+                        "type": "object",
+                        "properties": {
+                            "file_path": {
+                                "type": "string",
+                                "description": "The path to the file to read",
+                            }
+                        },
+                        "required": ["file_path"],
                     },
-                    "required": ["file_path"]
-                    }
-                }
+                },
             }
-        ]
+        ],
     )
 
     if not chat.choices or len(chat.choices) == 0:
         raise RuntimeError("no choices in response")
+
+    tool_to_be_called = chat.choices[0].tool_calls[0]
+
+    tool_function_name = tool_to_be_called.function.name
+
+    tool_argument = json.loads(tool_function_name.arguments)
+
+    file_path = tool_argument["file_path"]
+
+    content = read(file_path)
+
+    print(content)
 
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!", file=sys.stderr)
