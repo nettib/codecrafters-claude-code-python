@@ -12,7 +12,7 @@ API_KEY = os.getenv("OPENROUTER_API_KEY")
 BASE_URL = os.getenv("OPENROUTER_BASE_URL", default="https://openrouter.ai/api/v1")
 
 
-def Read(file_path):
+def read(file_path):
     with open(file_path) as f:
         content = f.read()
 
@@ -65,7 +65,8 @@ def main():
 
     file_path = tool_argument["file_path"]
 
-    content = tool_function_name(file_path)
+    if tool_function_name == "Read":
+        content = read(file_path)
 
     print(content)
 
