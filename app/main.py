@@ -56,19 +56,20 @@ def main():
     if not chat.choices or len(chat.choices) == 0:
         raise RuntimeError("no choices in response")
 
-    tool_to_be_called = chat.choices[0].message.tool_calls[0]
+    if chat.choices[0].message.tool_calls:
+        tool_to_be_called = chat.choices[0].message.tool_calls[0]
 
-    tool_function = tool_to_be_called.function
+        tool_function = tool_to_be_called.function
 
-    tool_function_name = tool_function.name
-    tool_argument = json.loads(tool_function.arguments)
+        tool_function_name = tool_function.name
+        tool_argument = json.loads(tool_function.arguments)
 
-    file_path = tool_argument["file_path"]
+        file_path = tool_argument["file_path"]
 
-    if tool_function_name == "Read":
-        content = read(file_path)
+        if tool_function_name == "Read":
+            content = read(file_path)
 
-    print(content)
+        print(content)
 
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!", file=sys.stderr)
