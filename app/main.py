@@ -30,7 +30,7 @@ def main():
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
     chat = client.chat.completions.create(
-        model="anthropic/claude-haiku-4.5",
+        model="nvidia/nemotron-3-ultra-550b-a55b:free",
         messages=[{"role": "user", "content": args.p}],
         tools=[
             {
