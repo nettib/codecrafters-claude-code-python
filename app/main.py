@@ -50,20 +50,14 @@ def main():
         }
     ]
 
-    chat = client.chat.completions.create(
-        model="anthropic/claude-haiku-4.5",
-        messages=messages,
-        tools=tools,
-    )
-
-    while chat.choices[0].message.tool_calls:
+    while True:
         chat = client.chat.completions.create(
             model="anthropic/claude-haiku-4.5",
             messages=messages,
             tools=tools,
         )
 
-        if not chat.choices or len(chat.choices) == 0:
+        if not chat.choices:
             raise RuntimeError("no choices in response")
 
         messages.append(
@@ -72,6 +66,9 @@ def main():
                 "content": chat.choices[0].message.content,
             }
         )
+
+        if not chat.choices[0].message.tool_calls:
+            break
 
         for tool_to_be_called in chat.choices[0].message.tool_calls:
             tool_function = tool_to_be_called.function
