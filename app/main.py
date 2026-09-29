@@ -83,11 +83,16 @@ def main():
                 tool_argument = json.loads(tool_function.arguments)
                 file_path = tool_argument["file_path"]
 
-                content = read(file_path)
+                try:
+                    content = read(file_path)
+                except Exception as e:
+                    content = f"Error: {e}"
+            else:
+                content = f"Unknown function name: {tool_function_name}"
 
-                messages.append(
-                    {"role": "tool", "tool_call_id": tool_call_id, "content": content}
-                )
+            messages.append(
+                {"role": "tool", "tool_call_id": tool_call_id, "content": content}
+            )
 
     # if chat.choices[0].message.tool_calls:
     #     tool_to_be_called = chat.choices[0].message.tool_calls[0]
@@ -106,7 +111,7 @@ def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 
     # TODO: Uncomment the following line to pass the first stage
-    print(messages[-1].content)
+    print(chat.choices[0].message.content)
 
 
 if __name__ == "__main__":
