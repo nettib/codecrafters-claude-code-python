@@ -60,12 +60,14 @@ def main():
         if not chat.choices:
             raise RuntimeError("no choices in response")
 
-        messages.append(
-            {
-                "role": chat.choices[0].message.role,
-                "content": chat.choices[0].message.content,
-            }
-        )
+        # messages.append(
+        #     {
+        #         "role": chat.choices[0].message.role,
+        #         "content": chat.choices[0].message.content,
+        #     }
+        # )
+
+        messages.append(chat.choices[0].message)
 
         if not chat.choices[0].message.tool_calls:
             break
@@ -76,11 +78,11 @@ def main():
             tool_call_id = tool_to_be_called.id
 
             tool_function_name = tool_function.name
-            tool_argument = json.loads(tool_function.arguments)
-
-            file_path = tool_argument["file_path"]
 
             if tool_function_name == "Read":
+                tool_argument = json.loads(tool_function.arguments)
+                file_path = tool_argument["file_path"]
+
                 content = read(file_path)
 
                 messages.append(
@@ -104,7 +106,7 @@ def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 
     # TODO: Uncomment the following line to pass the first stage
-    print(messages[-1].content)
+    print(messages[-1]["content"])
 
 
 if __name__ == "__main__":
