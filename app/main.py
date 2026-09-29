@@ -106,7 +106,7 @@ def main():
     print("Logs from your program will appear here!", file=sys.stderr)
 
     # TODO: Uncomment the following line to pass the first stage
-    print(messages[-1]["content"])
+    print(messages[-1].content)
 
 
 if __name__ == "__main__":
