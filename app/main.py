@@ -29,53 +29,85 @@ def main():
 
     client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
+    messages = [{"role": "user", "content": args.p}]
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "Read",
+                "description": "Read and return the contents of a file",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "file_path": {
+                            "type": "string",
+                            "description": "The path to the file to read",
+                        }
+                    },
+                    "required": ["file_path"],
+                },
+            },
+        }
+    ]
+
     chat = client.chat.completions.create(
         model="anthropic/claude-haiku-4.5",
-        messages=[{"role": "user", "content": args.p}],
-        tools=[
-            {
-                "type": "function",
-                "function": {
-                    "name": "Read",
-                    "description": "Read and return the contents of a file",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "file_path": {
-                                "type": "string",
-                                "description": "The path to the file to read",
-                            }
-                        },
-                        "required": ["file_path"],
-                    },
-                },
-            }
-        ],
+        messages=messages,
+        tools=tools,
     )
 
-    if not chat.choices or len(chat.choices) == 0:
-        raise RuntimeError("no choices in response")
+    while chat.choices[0].message.tool_calls:
+        chat = client.chat.completions.create(
+            model="anthropic/claude-haiku-4.5",
+            messages=messages,
+            tools=tools,
+        )
 
-    if chat.choices[0].message.tool_calls:
-        tool_to_be_called = chat.choices[0].message.tool_calls[0]
+        if not chat.choices or len(chat.choices) == 0:
+            raise RuntimeError("no choices in response")
 
-        tool_function = tool_to_be_called.function
+        messages.append(
+            {
+                "role": chat.choices[0].message.role,
+                "content": chat.choices[0].message.content,
+            }
+        )
 
-        tool_function_name = tool_function.name
-        tool_argument = json.loads(tool_function.arguments)
+        for tool_to_be_called in chat.choices[0].message.tool_calls:
+            tool_function = tool_to_be_called.function
 
-        file_path = tool_argument["file_path"]
+            tool_call_id = tool_to_be_called.id
 
-        if tool_function_name == "Read":
-            chat.choices[0].message.content = read(file_path)
+            tool_function_name = tool_function.name
+            tool_argument = json.loads(tool_function.arguments)
 
-    print(f"messages: \n{chat}")
+            file_path = tool_argument["file_path"]
+
+            if tool_function_name == "Read":
+                content = read(file_path)
+
+                messages.append(
+                    {"role": "tool", "tool_call_id": tool_call_id, "content": content}
+                )
+
+    # if chat.choices[0].message.tool_calls:
+    #     tool_to_be_called = chat.choices[0].message.tool_calls[0]
+
+    #     tool_function = tool_to_be_called.function
+
+    #     tool_function_name = tool_function.name
+    #     tool_argument = json.loads(tool_function.arguments)
+
+    #     file_path = tool_argument["file_path"]
+
+    #     if tool_function_name == "Read":
+    #         chat.choices[0].message.content = read(file_path)
 
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!", file=sys.stderr)
 
     # TODO: Uncomment the following line to pass the first stage
-    print(chat.choices[0].message.content)
+    print(messages[-1].content)
 
 
 if __name__ == "__main__":
