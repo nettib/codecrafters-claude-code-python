@@ -19,6 +19,11 @@ def read(file_path):
     return content
 
 
+def write(file_path, content):
+    with open(file_path, "w") as f:
+        f.write(content)
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("-p", required=True)
@@ -47,7 +52,28 @@ def main():
                     "required": ["file_path"],
                 },
             },
-        }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "Write",
+                "description": "Write content to a file",
+                "parameters": {
+                    "type": "object",
+                    "required": ["file_path", "content"],
+                    "properties": {
+                        "file_path": {
+                            "type": "string",
+                            "description": "The path of the file to write to",
+                        },
+                        "content": {
+                            "type": "string",
+                            "description": "The content to write to the file",
+                        },
+                    },
+                },
+            },
+        },
     ]
 
     while True:
@@ -85,6 +111,16 @@ def main():
 
                 try:
                     content = read(file_path)
+                except Exception as e:
+                    content = f"Error: {e}"
+            elif tool_function_name == "Write":
+                tool_argument = json.loads(tool_function.arguments)
+                file_path = tool_argument["file_path"]
+                content = tool_argument["content"]
+
+                try:
+                    write(file_path, content)
+                    content = None
                 except Exception as e:
                     content = f"Error: {e}"
             else:
