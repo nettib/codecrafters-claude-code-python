@@ -116,11 +116,11 @@ def main():
             elif tool_function_name == "Write":
                 tool_argument = json.loads(tool_function.arguments)
                 file_path = tool_argument["file_path"]
-                content = tool_argument["content"]
+                input_content = tool_argument["content"]
 
                 try:
-                    write(file_path, content)
-                    content = None
+                    write(file_path, input_content)
+                    content = input_content
                 except Exception as e:
                     content = f"Error: {e}"
             else:
