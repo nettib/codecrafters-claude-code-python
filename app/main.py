@@ -89,7 +89,7 @@ def main():
         {
             "type": "function",
             "function": {
-                "name": "Run bash cmd",
+                "name": "Bash",
                 "description": "Run bash command",
                 "parameters": {
                     "type": "object",
@@ -151,7 +151,7 @@ def main():
                     content = write(file_path, input_content)
                 except Exception as e:
                     content = f"Error: {e}"
-            elif tool_function_name == "Run bash cmd":
+            elif tool_function_name == "Bash":
                 tool_argument = json.loads(tool_function.arguments)
                 cmd = tool_argument["cmd"]
 
