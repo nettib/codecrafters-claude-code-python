@@ -23,6 +23,8 @@ def write(file_path, content):
     with open(file_path, "w") as f:
         f.write(content)
 
+    return f"The content is written to {file_path}"
+
 
 def main():
     p = argparse.ArgumentParser()
