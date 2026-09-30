@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import subprocess
 import sys
 
 from dotenv import load_dotenv
@@ -24,6 +25,15 @@ def write(file_path, content):
         f.write(content)
 
     return f"The content is written to {file_path}"
+
+
+def run_bash_cmd(cmd):
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
+
+    if result.stderr:
+        return f"Error: {result.stderr}"
+
+    return f"Success: {result.stdout}"
 
 
 def main():
@@ -76,6 +86,23 @@ def main():
                 },
             },
         },
+        {
+            "type": "function",
+            "function": {
+                "name": "Run bash cmd",
+                "description": "Run bash command",
+                "parameters": {
+                    "type": "object",
+                    "required": ["cmd"],
+                    "properties": {
+                        "cmd": {
+                            "type": "string",
+                            "description": "The command that should be run",
+                        }
+                    },
+                },
+            },
+        },
     ]
 
     while True:
@@ -121,10 +148,18 @@ def main():
                 input_content = tool_argument["content"]
 
                 try:
-                    write(file_path, input_content)
-                    content = input_content
+                    content = write(file_path, input_content)
                 except Exception as e:
                     content = f"Error: {e}"
+            elif tool_function_name == "Run bash cmd":
+                tool_argument = json.loads(tool_function.arguments)
+                cmd = tool_argument["cmd"]
+
+                try:
+                    content = run_bash_cmd(cmd)
+                except Exception as e:
+                    content = f"Error: {e}"
+
             else:
                 content = f"Unknown function name: {tool_function_name}"
 
